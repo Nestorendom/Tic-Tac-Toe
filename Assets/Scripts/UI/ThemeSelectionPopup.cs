@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,13 +8,15 @@ public class ThemeSelectionPopup : PopupBase
 {
     [SerializeField] private TMP_Text selectedThemeText;
     [SerializeField] private Button[] themeButtons;
-    [SerializeField] private Color selectedButtonColor = new(0.7f, 0.7f, 0.7f, 1f);
-    [SerializeField] private Color unselectedButtonColor = Color.white;
+    [SerializeField] private Color selectedTextColor = new(0.7f, 0.7f, 0.7f, 1f);
+    [SerializeField] private Color unselectedTextColor = Color.white;
 
     private int selectedIndex;
 
     private void OnEnable()
     {
+        AutoResolveThemeButtons();
+
         if (ThemeManager.Instance != null)
         {
             selectedIndex = ThemeManager.Instance.SelectedThemeIndex;
@@ -26,6 +29,37 @@ public class ThemeSelectionPopup : PopupBase
         selectedIndex = index;
         AudioManager.Instance?.PlayButtonClick();
         RefreshVisual();
+    }
+
+    private void AutoResolveThemeButtons()
+    {
+        if (themeButtons != null && themeButtons.Length > 0)
+            return;
+
+        List<Button> resolvedButtons = new();
+        Button[] allButtons = GetComponentsInChildren<Button>(true);
+
+        foreach (Button button in allButtons)
+        {
+            if (button == null)
+                continue;
+
+            int eventCount = button.onClick.GetPersistentEventCount();
+            for (int i = 0; i < eventCount; i++)
+            {
+                Object target = button.onClick.GetPersistentTarget(i);
+                string methodName = button.onClick.GetPersistentMethodName(i);
+
+                if (target == this && methodName == nameof(SelectTheme))
+                {
+                    resolvedButtons.Add(button);
+                    break;
+                }
+            }
+        }
+
+        if (resolvedButtons.Count > 0)
+            themeButtons = resolvedButtons.ToArray();
     }
 
     private void RefreshVisual()
@@ -56,9 +90,9 @@ public class ThemeSelectionPopup : PopupBase
             bool isSelected = i == selectedIndex;
             button.interactable = !isSelected;
 
-            Image buttonImage = button.image;
-            if (buttonImage != null)
-                buttonImage.color = isSelected ? selectedButtonColor : unselectedButtonColor;
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
+            if (buttonText != null)
+                buttonText.color = isSelected ? selectedTextColor : unselectedTextColor;
         }
     }
 
