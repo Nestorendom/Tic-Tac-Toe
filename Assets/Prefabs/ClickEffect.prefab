@@ -90,8 +90,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ClickEffect
   image: {fileID: 6340056460868610190}
   frames:
-  - {fileID: -3587753197306472706, guid: f6ee08da73c09ad42a404d1baef771ab, type: 3}
-  - {fileID: -3290490036378761279, guid: 4b6880d615fb35c45bd3559b9324bed5, type: 3}
-  - {fileID: 3102169746803758669, guid: b1404c506ec89ff4ca614f015dbc5295, type: 3}
-  - {fileID: 1422413102781171116, guid: f5d44accd25fac840b32db387b3493b2, type: 3}
+  - {fileID: 4244385910902921516, guid: ea9495400bc4a024cb9156be2b6d3913, type: 3}
+  - {fileID: -6739958523364497609, guid: 99edba4a346b7104d87a88a09a3adc9d, type: 3}
+  - {fileID: 7083668843314904319, guid: 511e72f813a741a4c94534f71c50e683, type: 3}
+  - {fileID: -7249115906814040971, guid: 82e1fe5d0ae891444a46e2c68119f993, type: 3}
   frameRate: 12
