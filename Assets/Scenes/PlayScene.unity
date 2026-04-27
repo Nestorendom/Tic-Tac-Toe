@@ -4280,7 +4280,7 @@ MonoBehaviour:
   bgmClip: {fileID: 8300000, guid: 8db0008ba007176449de8e71ea1f1c3f, type: 3}
   buttonClickClip: {fileID: 8300000, guid: a98cbdeea6f16ce44a955f3e7290cade, type: 3}
   placementClip: {fileID: 8300000, guid: 65710670e64aa5f4aa126bd3e69492c5, type: 3}
-  winClip: {fileID: 0}
+  winClip: {fileID: 8300000, guid: 847662d90c88ecb48a1b97bf5622b976, type: 3}
   popupClip: {fileID: 8300000, guid: 330223d161214d84f8fa9b3b8c1dbd3a, type: 3}
 --- !u!4 &1425361779
 Transform:
