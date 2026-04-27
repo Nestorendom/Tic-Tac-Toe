@@ -8,10 +8,11 @@ public class ThemeSelectionPopup : PopupBase
     [SerializeField] private TMP_Text selectedThemeText;
     [SerializeField] private TMP_Text[] themeOptionTexts;
     [SerializeField] private Color unselectedTextColor = Color.white;
-    [SerializeField] private Color selectedTextColor = new(0.6f, 0.6f, 0.6f, 1f);
+    [SerializeField] private Color selectedTextColor = new(1f, 0.92f, 0.35f, 1f);
 
     private int selectedIndex;
     private bool hasInitializedThemeOptionTexts;
+    private string[] themeOptionBaseLabels;
 
     private void OnEnable()
     {
@@ -44,7 +45,12 @@ public class ThemeSelectionPopup : PopupBase
             if (themeOptionTexts[i] == null)
                 continue;
 
-            themeOptionTexts[i].color = i == selectedIndex ? selectedTextColor : unselectedTextColor;
+            bool isSelected = i == selectedIndex;
+            themeOptionTexts[i].color = isSelected ? selectedTextColor : unselectedTextColor;
+            themeOptionTexts[i].fontStyle = isSelected ? FontStyles.Bold : FontStyles.Normal;
+
+            string label = GetOptionBaseLabel(i, themeOptionTexts[i]);
+            themeOptionTexts[i].text = isSelected ? $"✓ {label}" : label;
         }
     }
 
@@ -72,7 +78,10 @@ public class ThemeSelectionPopup : PopupBase
         hasInitializedThemeOptionTexts = true;
 
         if (themeOptionTexts != null && themeOptionTexts.Length > 0)
+        {
+            CacheThemeOptionBaseLabels();
             return;
+        }
 
         Button[] buttons = GetComponentsInChildren<Button>(true);
         int themeButtonCount = 0;
@@ -98,6 +107,11 @@ public class ThemeSelectionPopup : PopupBase
             themeOptionTexts[textIndex] = optionText;
             textIndex++;
         }
+
+        if (themeOptionTexts.Length == 0)
+            AutoWireThemeOptionsFromThemeNames();
+
+        CacheThemeOptionBaseLabels();
     }
 
     private bool IsThemeSelectionButton(Button button)
@@ -115,5 +129,55 @@ public class ThemeSelectionPopup : PopupBase
         }
 
         return false;
+    }
+
+    private void AutoWireThemeOptionsFromThemeNames()
+    {
+        if (ThemeManager.Instance == null || ThemeManager.Instance.Themes == null)
+            return;
+
+        ThemeData[] themes = ThemeManager.Instance.Themes;
+        themeOptionTexts = new TMP_Text[themes.Length];
+
+        TMP_Text[] allTexts = GetComponentsInChildren<TMP_Text>(true);
+        for (int i = 0; i < themes.Length; i++)
+        {
+            for (int j = 0; j < allTexts.Length; j++)
+            {
+                if (allTexts[j] == null || allTexts[j] == selectedThemeText)
+                    continue;
+
+                if (allTexts[j].text == themes[i].themeName)
+                {
+                    themeOptionTexts[i] = allTexts[j];
+                    break;
+                }
+            }
+        }
+    }
+
+    private void CacheThemeOptionBaseLabels()
+    {
+        themeOptionBaseLabels = new string[themeOptionTexts.Length];
+        for (int i = 0; i < themeOptionTexts.Length; i++)
+        {
+            if (themeOptionTexts[i] == null)
+                continue;
+
+            themeOptionBaseLabels[i] = themeOptionTexts[i].text.Replace("✓ ", string.Empty);
+        }
+    }
+
+    private string GetOptionBaseLabel(int index, TMP_Text optionText)
+    {
+        if (themeOptionBaseLabels != null &&
+            index >= 0 &&
+            index < themeOptionBaseLabels.Length &&
+            !string.IsNullOrWhiteSpace(themeOptionBaseLabels[index]))
+        {
+            return themeOptionBaseLabels[index];
+        }
+
+        return optionText.text.Replace("✓ ", string.Empty);
     }
 }
