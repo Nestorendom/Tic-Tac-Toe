@@ -4,9 +4,27 @@ using UnityEngine.SceneManagement;
 
 public class ThemeSelectionPopup : PopupBase
 {
-    [SerializeField] private TMP_Text selectedThemeText;
+    [Header("Theme Buttons Text")]
+    [SerializeField] private TMP_Text[] themeTexts;
+
+    [Header("Selected Color")]
+    [SerializeField] private Color selectedColor = Color.gray;
 
     private int selectedIndex;
+
+    private Color[] originalColors;
+
+    private void Awake()
+    {
+        // Store original colors from Inspector
+        originalColors = new Color[themeTexts.Length];
+
+        for (int i = 0; i < themeTexts.Length; i++)
+        {
+            if (themeTexts[i] != null)
+                originalColors[i] = themeTexts[i].color;
+        }
+    }
 
     private void OnEnable()
     {
@@ -26,11 +44,21 @@ public class ThemeSelectionPopup : PopupBase
 
     private void RefreshVisual()
     {
-        if (ThemeManager.Instance == null || selectedThemeText == null)
-            return;
+        for (int i = 0; i < themeTexts.Length; i++)
+        {
+            if (themeTexts[i] == null)
+                continue;
 
-        ThemeData theme = ThemeManager.Instance.Themes[selectedIndex];
-        selectedThemeText.text = $"Selected Theme: {theme.themeName}";
+            if (i == selectedIndex)
+            {
+                themeTexts[i].color = selectedColor;
+            }
+            else
+            {
+                // Restore original Inspector color
+                themeTexts[i].color = originalColors[i];
+            }
+        }
     }
 
     public void OnStartPressed()

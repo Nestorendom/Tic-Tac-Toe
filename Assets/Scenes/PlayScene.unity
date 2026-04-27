@@ -5608,7 +5608,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ThemeSelectionPopup
   root: {fileID: 1764521138}
   popupAnimator: {fileID: 1764521143}
-  selectedThemeText: {fileID: 0}
+  themeTexts:
+  - {fileID: 1541127644}
+  - {fileID: 1822745315}
+  - {fileID: 2015816465}
+  selectedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!114 &1764521141
 MonoBehaviour:
   m_ObjectHideFlags: 0
