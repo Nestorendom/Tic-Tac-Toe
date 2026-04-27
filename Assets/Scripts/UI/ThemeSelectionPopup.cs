@@ -7,8 +7,8 @@ public class ThemeSelectionPopup : PopupBase
 {
     [SerializeField] private TMP_Text selectedThemeText;
     [SerializeField] private Button[] themeButtons;
-    [SerializeField] private Color selectedTextColor = new(0.7f, 0.7f, 0.7f, 1f);
-    [SerializeField] private Color unselectedTextColor = Color.white;
+    [SerializeField] private Color selectedButtonColor = new(0.7f, 0.7f, 0.7f, 1f);
+    [SerializeField] private Color unselectedButtonColor = Color.white;
 
     private int selectedIndex;
 
@@ -56,9 +56,9 @@ public class ThemeSelectionPopup : PopupBase
             bool isSelected = i == selectedIndex;
             button.interactable = !isSelected;
 
-            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>(true);
-            if (buttonText != null)
-                buttonText.color = isSelected ? selectedTextColor : unselectedTextColor;
+            Image buttonImage = button.image;
+            if (buttonImage != null)
+                buttonImage.color = isSelected ? selectedButtonColor : unselectedButtonColor;
         }
     }
 
