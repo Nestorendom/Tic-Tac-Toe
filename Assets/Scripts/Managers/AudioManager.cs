@@ -15,11 +15,17 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip winClip;
     [SerializeField] private AudioClip popupClip;
 
-    public bool BgmEnabled { get; private set; } = true;
-    public bool SfxEnabled { get; private set; } = true;
+    private bool bgmEnabled = true;
+    private bool sfxEnabled = true;
+    public bool BgmEnabled => bgmEnabled;
+    public bool SfxEnabled => sfxEnabled;
+
+    private const string BGM_KEY = "BGM_ENABLED";
+    private const string SFX_KEY = "SFX_ENABLED";
 
     private void Awake()
     {
+        // Singleton
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -29,81 +35,82 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        LoadSettings();
+        // Load saved settings
+        bgmEnabled = PlayerPrefs.GetInt(BGM_KEY, 1) == 1;
+        sfxEnabled = PlayerPrefs.GetInt(SFX_KEY, 1) == 1;
     }
 
     private void Start()
     {
         ApplyBgmState();
-        ApplySfxState();
-        StartBgm();
+    }
+
+
+
+    public void StartBgm()
+    {
+        if (!bgmEnabled || bgmClip == null || bgmSource == null)
+            return;
+
+        if (bgmSource.isPlaying)
+            return;
+
+        bgmSource.clip = bgmClip;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+
+    public void StopBgm()
+    {
+        if (bgmSource != null)
+            bgmSource.Stop();
     }
 
     public void SetBgmEnabled(bool enabled)
     {
-        if (BgmEnabled == enabled)
-            return;
+        bgmEnabled = enabled;
+        PlayerPrefs.SetInt(BGM_KEY, enabled ? 1 : 0);
 
-        BgmEnabled = enabled;
-        PlayerPrefs.SetInt(SaveKeys.BgmEnabled, enabled ? 1 : 0);
-        PlayerPrefs.Save();
         ApplyBgmState();
-    }
-
-    public void SetSfxEnabled(bool enabled)
-    {
-        if (SfxEnabled == enabled)
-            return;
-
-        SfxEnabled = enabled;
-        PlayerPrefs.SetInt(SaveKeys.SfxEnabled, enabled ? 1 : 0);
-        PlayerPrefs.Save();
-        ApplySfxState();
-    }
-
-    private void LoadSettings()
-    {
-        BgmEnabled = PlayerPrefs.GetInt(SaveKeys.BgmEnabled, 1) == 1;
-        SfxEnabled = PlayerPrefs.GetInt(SaveKeys.SfxEnabled, 1) == 1;
-    }
-
-    private void ApplySfxState()
-    {
-        if (sfxSource == null)
-            return;
-
-        sfxSource.mute = !SfxEnabled;
     }
 
     private void ApplyBgmState()
     {
-        if (bgmSource == null)
-            return;
-
-        bgmSource.mute = !BgmEnabled;
-
-        if (BgmEnabled && !bgmSource.isPlaying)
+        if (bgmEnabled)
         {
-            StartBgm();
+            // Will start only after first interaction
+        }
+        else
+        {
+            StopBgm();
         }
     }
 
-    private void StartBgm()
+
+    public void SetSfxEnabled(bool enabled)
     {
-        if (bgmSource == null || bgmClip == null)
+        sfxEnabled = enabled;
+        PlayerPrefs.SetInt(SFX_KEY, enabled ? 1 : 0);
+    }
+
+    private void PlaySfx(AudioClip clip)
+    {
+        if (!sfxEnabled || clip == null || sfxSource == null)
             return;
 
-        if (bgmSource.clip != bgmClip)
-            bgmSource.clip = bgmClip;
-
-        bgmSource.loop = true;
-
-        if (!bgmSource.isPlaying)
-            bgmSource.Play();
+        // Small pitch variation = nicer feel
+        sfxSource.pitch = Random.Range(0.95f, 1.05f);
+        sfxSource.PlayOneShot(clip);
     }
 
     public void PlayButtonClick()
     {
+        // ? WebGL fix: start BGM on first interaction
+        if (bgmEnabled && bgmSource != null && !bgmSource.isPlaying)
+        {
+            StartBgm();
+        }
+
         PlaySfx(buttonClickClip);
     }
 
@@ -120,13 +127,5 @@ public class AudioManager : MonoBehaviour
     public void PlayPopup()
     {
         PlaySfx(popupClip);
-    }
-
-    private void PlaySfx(AudioClip clip)
-    {
-        if (!SfxEnabled || sfxSource == null || clip == null)
-            return;
-
-        sfxSource.PlayOneShot(clip);
     }
 }
