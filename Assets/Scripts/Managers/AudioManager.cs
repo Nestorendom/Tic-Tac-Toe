@@ -35,11 +35,15 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         ApplyBgmState();
+        ApplySfxState();
         StartBgm();
     }
 
     public void SetBgmEnabled(bool enabled)
     {
+        if (BgmEnabled == enabled)
+            return;
+
         BgmEnabled = enabled;
         PlayerPrefs.SetInt(SaveKeys.BgmEnabled, enabled ? 1 : 0);
         PlayerPrefs.Save();
@@ -48,15 +52,27 @@ public class AudioManager : MonoBehaviour
 
     public void SetSfxEnabled(bool enabled)
     {
+        if (SfxEnabled == enabled)
+            return;
+
         SfxEnabled = enabled;
         PlayerPrefs.SetInt(SaveKeys.SfxEnabled, enabled ? 1 : 0);
         PlayerPrefs.Save();
+        ApplySfxState();
     }
 
     private void LoadSettings()
     {
         BgmEnabled = PlayerPrefs.GetInt(SaveKeys.BgmEnabled, 1) == 1;
         SfxEnabled = PlayerPrefs.GetInt(SaveKeys.SfxEnabled, 1) == 1;
+    }
+
+    private void ApplySfxState()
+    {
+        if (sfxSource == null)
+            return;
+
+        sfxSource.mute = !SfxEnabled;
     }
 
     private void ApplyBgmState()

@@ -7,20 +7,32 @@ public class SettingsPopup : PopupBase
     [SerializeField] private Toggle sfxToggle;
 
     private bool isRefreshing;
+    private bool listenersRegistered;
+
+    private void Awake()
+    {
+        RegisterListeners();
+    }
 
     private void OnEnable()
     {
+        RegisterListeners();
         Refresh();
+    }
+
+    private void OnDisable()
+    {
+        UnregisterListeners();
     }
 
     public void Refresh()
     {
-        if (AudioManager.Instance == null)
+        if (AudioManager.Instance == null || bgmToggle == null || sfxToggle == null)
             return;
 
         isRefreshing = true;
-        bgmToggle.isOn = AudioManager.Instance.BgmEnabled;
-        sfxToggle.isOn = AudioManager.Instance.SfxEnabled;
+        bgmToggle.SetIsOnWithoutNotify(AudioManager.Instance.BgmEnabled);
+        sfxToggle.SetIsOnWithoutNotify(AudioManager.Instance.SfxEnabled);
         isRefreshing = false;
     }
 
@@ -44,5 +56,25 @@ public class SettingsPopup : PopupBase
     {
         AudioManager.Instance?.PlayButtonClick();
         Hide();
+    }
+
+    private void RegisterListeners()
+    {
+        if (listenersRegistered || bgmToggle == null || sfxToggle == null)
+            return;
+
+        bgmToggle.onValueChanged.AddListener(OnBgmToggleChanged);
+        sfxToggle.onValueChanged.AddListener(OnSfxToggleChanged);
+        listenersRegistered = true;
+    }
+
+    private void UnregisterListeners()
+    {
+        if (!listenersRegistered || bgmToggle == null || sfxToggle == null)
+            return;
+
+        bgmToggle.onValueChanged.RemoveListener(OnBgmToggleChanged);
+        sfxToggle.onValueChanged.RemoveListener(OnSfxToggleChanged);
+        listenersRegistered = false;
     }
 }
